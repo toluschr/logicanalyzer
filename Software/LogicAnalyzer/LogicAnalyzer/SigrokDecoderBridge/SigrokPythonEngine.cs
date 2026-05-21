@@ -47,7 +47,10 @@ namespace SigrokDecoderBridge
                     if (File.Exists(cfgFile))
                     {
                         Log("Reading python path from config file...");
-                        pythonPath = File.ReadAllText(cfgFile);
+
+                        // Stripping is probably fine, it is insane to rename "libpythonXXX.so" to "libpythonXXX.so "
+                        pythonPath = File.ReadAllText(cfgFile).Strip();
+
                         Log($"Stablished path: {pythonPath}");
                     }
                     else
