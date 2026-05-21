@@ -14,18 +14,18 @@
       <Grid Grid.Row="0" ColumnDefinitions="1.4*,*,*" Margin="15,0,15,0">
         <StackPanel Grid.Column="0" Orientation="Horizontal">
           <TextBlock VerticalAlignment="Center" Margin="0,0,10,0">Frequency:</TextBlock>
-          <NumericUpDown Width="165" Height="35" Minimum="3100" Maximum="100000000" Value="100000000" Name="nudFrequency" FormatString="#,##0"></NumericUpDown>
+          <uc:ExpressionNumericUpDown Width="165" Height="35" Minimum="3100" Maximum="100000000" Value="100000000" Name="nudFrequency" FormatString="#,##0"></uc:ExpressionNumericUpDown>
           <Border BorderBrush="#303030" Background="#1B8005" Height="28" Margin="5" Padding="5,0,5,0" BorderThickness="1" CornerRadius="10" Width="100" Name="brdJitter">
             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="12" Name="lblJitter">Jitter: 0.000%</TextBlock>
           </Border>
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
           <TextBlock VerticalAlignment="Center" Margin="0,0,10,0">Presamples:</TextBlock>
-          <NumericUpDown Width="135" Height="35" Value="512" Minimum="2" Maximum="98303" Name="nudPreSamples" FormatString="#,##0"></NumericUpDown>
+          <uc:ExpressionNumericUpDown Width="135" Height="35" Value="512" Minimum="2" Maximum="98303" Name="nudPreSamples" FormatString="#,##0"></uc:ExpressionNumericUpDown>
         </StackPanel>
         <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
           <TextBlock VerticalAlignment="Center" Margin="0,0,10,0">Postsamples:</TextBlock>
-          <NumericUpDown Width="135" Height="35" Value="1024" Minimum="512" Maximum="131069" Name="nudPostSamples" FormatString="#,##0"></NumericUpDown>
+          <uc:ExpressionNumericUpDown Width="135" Height="35" Value="1024" Minimum="512" Maximum="131069" Name="nudPostSamples" FormatString="#,##0"></uc:ExpressionNumericUpDown>
         </StackPanel>
       </Grid>
       <Grid Grid.Row="1" RowDefinitions="15*,14*" Name="grdMainContainer">
@@ -94,7 +94,7 @@
               <CheckBox Name="ckBlast" Margin="20,0,0,10"  VerticalAlignment="Center">Blast mode</CheckBox>
               <CheckBox Name="ckBurst" Margin="20,0,0,10"  VerticalAlignment="Center">Burst mode</CheckBox>
               <TextBlock Margin="20,0,0,10" VerticalAlignment="Center">Burst count:</TextBlock>
-              <NumericUpDown IsEnabled="{Binding #ckBurst.IsChecked}" Width="135" Margin="10,0,0,10" Height="35" Minimum="2" Maximum="254" Value="2" Name="nudBurstCount" FormatString="#"></NumericUpDown>
+              <uc:ExpressionNumericUpDown IsEnabled="{Binding #ckBurst.IsChecked}" Width="135" Margin="10,0,0,10" Height="35" Minimum="2" Maximum="254" Value="2" Name="nudBurstCount" FormatString="#"></uc:ExpressionNumericUpDown>
               <CheckBox IsEnabled="{Binding #ckBurst.IsChecked}" Name="ckMeasure" Margin="20,0,0,10">Measure delays</CheckBox>
             </StackPanel>
           </StackPanel>
