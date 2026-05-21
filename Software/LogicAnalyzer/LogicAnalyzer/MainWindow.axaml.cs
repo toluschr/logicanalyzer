@@ -1288,6 +1288,7 @@ namespace LogicAnalyzer
 
         void RefreshPorts()
         {
+            var oldPort = ddPorts.SelectedItem as PortItem;
 
             var devices = DeviceDetector.Detect();
             var ports = SerialPort.GetPortNames().ToList();
@@ -1312,8 +1313,7 @@ namespace LogicAnalyzer
 
             ddPorts.ItemsSource = null;
             ddPorts.ItemsSource = portItems.ToArray();
-
-            
+            ddPorts.SelectedItem = portItems.FirstOrDefault(p => oldPort == null || p.Port == oldPort.Port) ?? portItems.FirstOrDefault();
         }
 
         private async void btnRepeat_Click(object? sender, RoutedEventArgs e)
