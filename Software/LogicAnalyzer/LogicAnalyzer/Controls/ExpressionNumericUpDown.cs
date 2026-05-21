@@ -28,15 +28,18 @@ public class ExpressionNumericUpDown : NumericUpDown
 
     private bool EvaluateExpression()
     {
+        var text = base.Text ?? string.Empty;
+
         try {
-            var text = (Text ?? string.Empty).Replace(",", "");
-            var expression = new Expression(text);
+            var expression = new Expression(text.Replace(",", ""));
             var result = Convert.ToDecimal(expression.Evaluate());
-            base.Value = Math.Clamp(result, base.Minimum, base.Maximum);
             base.BorderBrush = null;
+            base.Value = Math.Clamp(result, base.Minimum, base.Maximum);
             return true;
         } catch {
             base.BorderBrush = Brushes.Red;
+            base.Value = null;
+            base.Text = text;
             return false;
         }
     }
