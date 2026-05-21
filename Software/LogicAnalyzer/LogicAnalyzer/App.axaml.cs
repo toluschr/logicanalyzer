@@ -17,15 +17,9 @@ namespace LogicAnalyzer
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var splash = new SplashScreen();
-                desktop.MainWindow = splash;
-                splash.Show();
-
                 var main = new MainWindow();
-                await Task.Delay(2000);
                 desktop.MainWindow = main;
                 main.Show();
-                splash.Close();
             }
 
             base.OnFrameworkInitializationCompleted();
