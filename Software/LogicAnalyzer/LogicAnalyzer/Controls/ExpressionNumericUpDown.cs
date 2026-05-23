@@ -32,6 +32,9 @@ public class ExpressionNumericUpDown : NumericUpDown
 
         try {
             var expression = new Expression(text.Replace(",", ""));
+            expression.Parameters["min"] = base.Minimum;
+            expression.Parameters["max"] = base.Maximum;
+
             var result = Convert.ToDecimal(expression.Evaluate());
             base.BorderBrush = null;
             base.Value = Math.Clamp(result, base.Minimum, base.Maximum);
