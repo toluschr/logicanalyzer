@@ -258,27 +258,21 @@ namespace LogicAnalyzer
             {
                 e.Handled = true;
 
-                if (e.Delta.Y > 0)
-                {
-                    var currentVal = tkInScreen.Value;
-                    int newVal = (int)currentVal * 2;
+                var curVal = tkInScreen.Value;
+                var delta = (e.GetPosition(sampleViewer).X / sampleViewer.Bounds.Width);
 
-                    if (newVal > tkInScreen.Maximum)
-                        newVal = (int)tkInScreen.Maximum;
+                int newVal = Math.Clamp(
+                    (int)(curVal * Math.Pow(1.5, e.Delta.Y)),
+                    (int)tkInScreen.Minimum,
+                    (int)tkInScreen.Maximum
+                );
+                int newPos = Math.Clamp(
+                    (int)(scrSamplePos.Value + (delta * (curVal - newVal))),
+                    (int)scrSamplePos.Minimum,
+                    (int)scrSamplePos.Maximum
+                );
 
-
-                    updateSamplesInDisplay((int)scrSamplePos.Value, newVal);
-                }
-                else if (e.Delta.Y < 0)
-                {
-                    var currentVal = tkInScreen.Value;
-                    int newVal = (int)currentVal / 2;
-
-                    if (newVal < tkInScreen.Minimum)
-                        newVal = (int)tkInScreen.Minimum;
-
-                    updateSamplesInDisplay((int)scrSamplePos.Value, newVal);
-                }
+                updateSamplesInDisplay(newPos, newVal);
             }
             else if (e.KeyModifiers == KeyModifiers.Control)
             {
