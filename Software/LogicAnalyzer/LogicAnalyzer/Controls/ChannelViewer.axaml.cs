@@ -2,6 +2,8 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using LogicAnalyzer.Classes;
 using SharedDriver;
 using System;
@@ -19,15 +21,46 @@ namespace LogicAnalyzer.Controls
         public AnalyzerChannel[] Channels
         {
             get { return channels; }
-            set 
-            { 
+            set
+            {
                 channels = value;
                 CreateControls();
             }
         }
 
         public event EventHandler<ChannelEventArgs> ChannelClick;
-        public event EventHandler ChannelVisibilityChanged;
+        public event EventHandler UpdateChannels;
+        public int pressedBuc = -1;
+
+        public void PointerPressed(object? sender, PointerPressedEventArgs args)
+        {
+            var newChannelGrid = sender as Grid;
+            this.pressedBuc = newChannelGrid.GetValue(Grid.RowProperty);
+            args.Pointer.Capture(null);
+            args.Handled = true;
+        }
+
+        public void PointerEntered(object? sender, PointerEventArgs args)
+        {
+            if (!args.GetCurrentPoint(null).Properties.IsLeftButtonPressed) {
+                this.pressedBuc = -1;
+            }
+
+            if (this.pressedBuc == -1) {
+                return;
+            }
+
+            var newChannelGrid = sender as Grid;
+            var enteredBuc = newChannelGrid.GetValue(Grid.RowProperty);
+
+            (channels[this.pressedBuc], channels[enteredBuc]) = (channels[enteredBuc], channels[this.pressedBuc]);
+            this.pressedBuc = enteredBuc;
+
+            if (UpdateChannels != null)
+                UpdateChannels(this, EventArgs.Empty);
+
+            args.Handled = true;
+        }
 
         private void CreateControls()
         {
@@ -42,25 +75,25 @@ namespace LogicAnalyzer.Controls
 
             //ChannelGrid.BeginBatchUpdate();
 
-            for (int buc = 0; buc < channels.Length; buc++)
+            for (int vis = 0, buc = 0; buc < channels.Length; buc++)
             {
-                //Create new row
-                ChannelGrid.RowDefinitions.Add(new RowDefinition(GridLength.Star));
-                
                 //Create channel grid
+                var newRowDefinition = new RowDefinition(channels[buc].Hidden ? GridLength.Auto : GridLength.Star);
                 var newChannelGrid = new Grid();
-                
-                newChannelGrid.SetValue(Grid.RowProperty, buc);
 
-                newChannelGrid.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Stretch;
-                newChannelGrid.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch;
-                
-                newChannelGrid.RowDefinitions = new RowDefinitions("*,*");
-
-                newChannelGrid.Background = GraphicObjectsCache.GetBrush(AnalyzerColors.BgChannelColors[buc % 2]);
-
+                //Create new row
+                ChannelGrid.RowDefinitions.Add(newRowDefinition);
                 ChannelGrid.Children.Add(newChannelGrid);
 
+                newChannelGrid.SetValue(Grid.RowProperty, buc);
+                newChannelGrid.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Stretch;
+                newChannelGrid.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch;
+                newChannelGrid.RowDefinitions = new RowDefinitions("*,*");
+                newChannelGrid.IsVisible = !channels[buc].Hidden;
+                newChannelGrid.Background = GraphicObjectsCache.GetBrush(AnalyzerColors.BgChannelColors[vis % 2]);
+                newChannelGrid.PointerPressed += PointerPressed;
+                newChannelGrid.PointerEntered += PointerEntered;
+                if (!channels[buc].Hidden) vis++;
 
                 var headerGrid = new Grid();
                 headerGrid.ColumnDefinitions = new ColumnDefinitions("32,*");
@@ -83,8 +116,8 @@ namespace LogicAnalyzer.Controls
 
                     channel.Hidden = true;
 
-                    if(ChannelVisibilityChanged != null)
-                        ChannelVisibilityChanged(this, EventArgs.Empty);
+                    if (UpdateChannels != null)
+                        UpdateChannels(this, EventArgs.Empty);
 
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                         e.Pointer.Capture(null);
@@ -138,41 +171,17 @@ namespace LogicAnalyzer.Controls
             }
 
             boxes = newBoxes.ToArray();
-
-            //ChannelGrid.EndBatchUpdate();
         }
 
         public void UpdateChannelVisibility()
         {
-            if (channels == null)
-                return;
-            
-            var chan = ChannelGrid.Children.Cast<Grid>().ToArray();
-            var rows = ChannelGrid.RowDefinitions.ToArray();
-
-            if (chan == null || rows == null)
-                return;
-            
-            if(channels.Length != chan.Length || channels.Length != rows.Length)
-                return;
-
-            int vis = 0;
-
-            for (int buc = 0; buc < channels.Length; buc++)
-            {
-                var txt = chan[buc].Children.Where(c => c is TextBox).FirstOrDefault() as TextBox;
-
-                chan[buc].IsVisible = !channels[buc].Hidden;
-                txt.Background = chan[buc].Background = GraphicObjectsCache.GetBrush(AnalyzerColors.BgChannelColors[vis % 2]);
-                rows[buc].Height = channels[buc].Hidden ? GridLength.Auto : GridLength.Star;
-
-                if (!channels[buc].Hidden)
-                    vis++;
-            }
+            CreateControls();
         }
 
         private void NewChannelLabel_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
         {
+            e.Handled = true;
+
             var label = sender as TextBlock;
 
             if (label == null)
@@ -180,7 +189,7 @@ namespace LogicAnalyzer.Controls
 
             var channel = label.Tag as AnalyzerChannel;
 
-            if(channel == null) 
+            if(channel == null)
                 return;
 
             if (ChannelClick == null)

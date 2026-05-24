@@ -92,7 +92,7 @@ namespace LogicAnalyzer
             lblForget.PointerPressed += LblForget_PointerPressed;
 
             channelViewer.ChannelClick += ChannelViewer_ChannelClick;
-            channelViewer.ChannelVisibilityChanged += ChannelViewer_ChannelVisibilityChanged;
+            channelViewer.UpdateChannels += ChannelViewer_UpdateChannels;
             tkInScreen.PropertyChanged += tkInScreen_ValueChanged;
             scrSamplePos.Scroll += scrSamplePos_ValueChanged;
             scrSamplePos.PointerEntered += ScrSamplePos_PointerEnter;
@@ -325,7 +325,7 @@ namespace LogicAnalyzer
             }
         }
 
-        private void ChannelViewer_ChannelVisibilityChanged(object? sender, EventArgs e)
+        private void ChannelViewer_UpdateChannels(object? sender, EventArgs e)
         {
             UpdateVisibility();
         }
@@ -345,6 +345,9 @@ namespace LogicAnalyzer
         {
             channelViewer.UpdateChannelVisibility();
             sampleViewer.InvalidateVisual();
+
+            samplePreviewer.UpdateSamples(channelViewer.Channels, session.TotalSamples);
+            samplePreviewer.InvalidateVisual();
         }
 
         private void TkInScreen_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
