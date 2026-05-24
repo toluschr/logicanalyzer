@@ -254,53 +254,31 @@ namespace LogicAnalyzer
 
         private void SampleViewer_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
         {
+            e.Handled = true;
+
+            var newVal = tkInScreen.Value;
+            var newPos = scrSamplePos.Value;
+
             if (e.KeyModifiers == KeyModifiers.Shift)
             {
-                e.Handled = true;
+                var delta = e.GetPosition(sampleViewer).X / sampleViewer.Bounds.Width;
+                var tmp = delta * newVal;
 
-                var curVal = tkInScreen.Value;
-                var delta = (e.GetPosition(sampleViewer).X / sampleViewer.Bounds.Width);
-
-                int newVal = Math.Clamp(
-                    (int)(curVal * Math.Pow(1.5, e.Delta.Y)),
-                    (int)tkInScreen.Minimum,
-                    (int)tkInScreen.Maximum
-                );
-                int newPos = Math.Clamp(
-                    (int)(scrSamplePos.Value + (delta * (curVal - newVal))),
-                    (int)scrSamplePos.Minimum,
-                    (int)scrSamplePos.Maximum
-                );
-
-                updateSamplesInDisplay(newPos, newVal);
+                newVal *= Math.Pow(1.5, e.Delta.Y);
+                newPos += tmp - delta * newVal;
             }
             else if (e.KeyModifiers == KeyModifiers.Control)
             {
-                e.Handled = true;
-
-                if (e.Delta.Y > 0)
-                {
-                    var increment = tkInScreen.Value / 4.0;
-                    var currentValue = scrSamplePos.Value;
-                    currentValue += (int)increment;
-
-                    if(currentValue > scrSamplePos.Maximum)
-                        currentValue = (int)scrSamplePos.Maximum;
-
-                    updateSamplesInDisplay((int)currentValue, (int)tkInScreen.Value);
-                }
-                else if (e.Delta.Y < 0)
-                {
-                    var increment = tkInScreen.Value / 4.0;
-                    var currentValue = scrSamplePos.Value;
-                    currentValue -= (int)increment;
-
-                    if (currentValue < 0)
-                        currentValue = 0;
-
-                    updateSamplesInDisplay((int)currentValue, (int)tkInScreen.Value);
-                }
+                newPos += (newVal / 4.0) * e.Delta.Y;
             }
+            else
+            {
+                return;
+            }
+
+            newVal = Math.Clamp(newVal, tkInScreen.Minimum, tkInScreen.Maximum);
+            newPos = Math.Clamp(newPos, scrSamplePos.Minimum, scrSamplePos.Maximum);
+            updateSamplesInDisplay((int)newPos, (int)newVal);
         }
 
         private void SamplePreviewer_PinnedChanged(object? sender, SamplePreviewer.PinnedEventArgs e)
