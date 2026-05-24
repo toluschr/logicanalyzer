@@ -50,36 +50,43 @@ namespace LogicAnalyzer.Controls
 
             SKPaint[] colors = new SKPaint[channelCount];
 
-            for (int buc = 0; buc < channelCount; buc++)
-            {
-                var avColor = AnalyzerColors.GetChannelColor(Channels[buc]);
-
-                colors[buc] = new SKPaint
-                {
-                    Style = SKPaintStyle.Stroke,
-                    StrokeWidth = 1,
-                    Color = new SKColor(avColor.R, avColor.G, avColor.B)
-                };
-            }
-
             using (var canvas = new SKCanvas(skb))
             {
-                for (int x = 0; x < SampleCount; x++)
+                for (int chan = 0; chan < channelCount; chan++)
                 {
-                    int sample = x;
-                    int prevSample = x == 0 ? x : x - 1;
+                    var avColor = AnalyzerColors.GetChannelColor(Channels[chan]);
 
-                    for (int chan = 0; chan < channelCount; chan++)
+                    colors[chan] = new SKPaint
                     {
-                        byte curVal = Channels[chan].Samples[sample];
-                        byte prevVal = Channels[chan].Samples[prevSample];
+                        Style = SKPaintStyle.Stroke,
+                        StrokeWidth = 1,
+                        Color = new SKColor(avColor.R, avColor.G, avColor.B)
+                    };
 
-                        float y = chan * cHeight + (curVal != 0 ? high : low);
+                    int fr = 0;
+                    int to = 0;
 
-                        canvas.DrawLine(x * sWidth, y, (x + 1) * sWidth, y, colors[chan]);
+                    for (;;)
+                    {
+                        if (fr >= SampleCount) break;
 
-                        if (curVal != prevVal)
-                            canvas.DrawLine(x * sWidth, chan * cHeight + high, x * sWidth, chan * cHeight + low, colors[chan]);
+                        // While the value is equal, increment [to].
+                        do {
+                            ++to;
+                        } while (to < SampleCount && Channels[chan].Samples[fr] == Channels[chan].Samples[to]);
+
+                        // now we know that just before [to], samples changed or there is no new sample.
+                        // draw the line from [fr] to [to]
+                        float oldY = chan * cHeight + ((Channels[chan].Samples[fr] != 0) ? high : low);
+                        canvas.DrawLine(fr * sWidth, oldY, to * sWidth, oldY, colors[chan]);
+
+                        // Draw the straight line
+                        if (to != SampleCount) {
+                            float newY = chan * cHeight + ((Channels[chan].Samples[to] != 0) ? high : low);
+                            canvas.DrawLine(to * sWidth, oldY, to * sWidth, newY, colors[chan]);
+                        }
+
+                        fr = to;
                     }
                 }
             }
