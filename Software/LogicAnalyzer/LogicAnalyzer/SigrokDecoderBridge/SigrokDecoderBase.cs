@@ -108,7 +108,7 @@ namespace SigrokDecoderBridge
 
         public bool IsBaseAnalyzer { get { return decoder.inputs[0] == "logic"; } }
 
-        internal SigrokProvider provider;
+        SigrokProvider provider;
 
         public string[] Inputs 
         { 
@@ -160,9 +160,10 @@ namespace SigrokDecoderBridge
         }
 
 
-        public SigrokDecoderBase(string decoderName)
+        public SigrokDecoderBase(string decoderName, SigrokProvider provider)
         {
             this.decoderName = decoderName;
+            this.provider = provider;
 
             using (Py.GIL())
             {

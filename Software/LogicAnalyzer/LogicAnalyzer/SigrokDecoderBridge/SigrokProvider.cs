@@ -45,7 +45,7 @@ namespace SigrokDecoderBridge
 
                 try
                 {
-                    decoders.Add(new SigrokDecoderBase(decoderName));
+                    decoders.Add(new SigrokDecoderBase(decoderName, this));
                 }
                 catch
                 {
