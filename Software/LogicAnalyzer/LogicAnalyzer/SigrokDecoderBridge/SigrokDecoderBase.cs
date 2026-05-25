@@ -187,33 +187,36 @@ namespace SigrokDecoderBridge
             {
                 channels = new List<SigrokChannel>();
 
-                dynamic requiredSignals = decoder.channels;
-
-                foreach (dynamic signal in requiredSignals)
+                if (decoder.HasAttr("channels"))
                 {
-                    channels.Add(new SigrokChannel
-                    {
-                        Required = true,
-                        Id = signal["id"],
-                        Name = signal["name"],
-                        Description = signal["desc"],
-                        Index = channels.Count
-                    });
+                    dynamic requiredSignals = decoder.GetAttr("channels");
 
+                    foreach (dynamic signal in requiredSignals)
+                    {
+                        channels.Add(new SigrokChannel {
+                            Required = true,
+                            Id = signal["id"],
+                            Name = signal["name"],
+                            Description = signal["desc"],
+                            Index = channels.Count
+                        });
+                    }
                 }
 
-                dynamic optionalSignals = decoder.optional_channels;
-
-                foreach (dynamic signal in optionalSignals)
+                if (decoder.HasAttr("optional_channels"))
                 {
-                    channels.Add(new SigrokChannel
+                    dynamic optionalSignals = decoder.GetAttr("optional_channels");
+
+                    foreach (dynamic signal in optionalSignals)
                     {
-                        Required = false,
-                        Id = signal["id"],
-                        Name = signal["name"],
-                        Description = signal["desc"],
-                        Index = channels.Count
-                    });
+                        channels.Add(new SigrokChannel {
+                            Required = false,
+                            Id = signal["id"],
+                            Name = signal["name"],
+                            Description = signal["desc"],
+                            Index = channels.Count
+                        });
+                    }
                 }
             }
         }
@@ -224,14 +227,10 @@ namespace SigrokDecoderBridge
             {
                 settings = new List<SigrokOption>();
 
-                dynamic options = decoder.options;
-
-                if (options == null)
-                {
+                if (!decoder.HasAttr("options") || decoder.GetAttr("options") == null)
                     return;
-                }
 
-                foreach (dynamic option in options)
+                foreach (dynamic option in decoder.GetAttr("options"))
                 {
 
                     string[] keys = GetKeys(option);
