@@ -9,12 +9,13 @@ using System.Linq;
 
 namespace SigrokDecoderBridge
 {
-    public abstract class SigrokDecoderBase : IDisposable
+    public class SigrokDecoderBase : IDisposable
     {
         PyModule thisModule;
         PyObject decoderObject;
         dynamic decoder;
 
+        string decoderName;
         List<SigrokChannel> channels;
         List<SigrokOption> settings;
         List<RegisteredOutput> registeredOutputs = new List<RegisteredOutput>();
@@ -39,8 +40,6 @@ namespace SigrokDecoderBridge
         Dictionary<int, int> currentState = new Dictionary<int, int>();
         Dictionary<int, int> lastState = new Dictionary<int, int>();
         AnalyzerChannel[] captures;
-
-        protected abstract string decoderName { get; }
 
         public string Id 
         {
@@ -161,8 +160,10 @@ namespace SigrokDecoderBridge
         }
 
 
-        public SigrokDecoderBase()
+        public SigrokDecoderBase(string decoderName)
         {
+            this.decoderName = decoderName;
+
             using (Py.GIL())
             {
                 //Create module scope

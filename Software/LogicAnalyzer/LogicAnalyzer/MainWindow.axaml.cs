@@ -142,7 +142,7 @@ namespace LogicAnalyzer
             regionDisplays.Add(sampleMarker);
             regionDisplays.Add(annotationsViewer);
 
-             Task.Run(() => LoadKnownDevices());
+            Task.Run(() => LoadKnownDevices());
 
             RefreshPorts();
             try
