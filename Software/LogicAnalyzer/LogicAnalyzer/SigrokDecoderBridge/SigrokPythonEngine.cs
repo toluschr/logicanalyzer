@@ -103,7 +103,7 @@ namespace SigrokDecoderBridge
 
                     dynamic os = Py.Import("os");
                     dynamic sys = Py.Import("sys");
-                    sys.path.append(DecoderPath);
+                    sys.path.insert(0, DecoderPath);
 
                     initialized = true;
 
